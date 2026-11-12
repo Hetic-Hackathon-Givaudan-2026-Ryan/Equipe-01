@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import os
 import threading
+import time
 from pathlib import Path
 
 from . import writer
@@ -31,6 +32,7 @@ class Store:
         self.lock = threading.Lock()
         self.id_locks: dict[str, threading.Lock] = {}
         self.llm_lock = threading.Lock()  # une seule rédaction à la fois sur le CPU
+        self.users_waiting = 0  # fiches demandées par quelqu'un, prioritaires
 
     def use(self, ds: Dataset) -> None:
         prospects = score_dataset(ds)
@@ -49,25 +51,35 @@ class Store:
     def get(self, pid: str) -> dict | None:
         return next((p for p in self.prospects if p["id"] == pid), None)
 
-    def _write_llm(self, p: dict) -> dict:
+    def _write_llm(self, p: dict, background: bool = False) -> dict:
         """Rédaction par le LLM, une seule fois par fiche même si on la demande deux fois."""
         with self.lock:
             id_lock = self.id_locks.setdefault(p["id"], threading.Lock())
-        with id_lock:
-            done = self.written.get(p["id"])
-            if done:
-                return done
-            with self.llm_lock:
-                text = writer.write(p, use_llm=True)
-            if text["engine"] == "llm":
-                self.written[p["id"]] = text
-            return text
+            if not background:
+                self.users_waiting += 1
+        try:
+            with id_lock:
+                done = self.written.get(p["id"])
+                if done:
+                    return done
+                with self.llm_lock:
+                    text = writer.write(p, use_llm=True)
+                if text["engine"] == "llm":
+                    self.written[p["id"]] = text
+                return text
+        finally:
+            if not background:
+                with self.lock:
+                    self.users_waiting -= 1
 
     def _pregenerate(self, gen: int) -> None:
         for p in list(self.prospects[:PREGENERATE]):
+            # Une fiche demandée par quelqu'un passe avant la pré-rédaction
+            while self.users_waiting and gen == self.generation:
+                time.sleep(0.5)
             if gen != self.generation:  # un autre jeu de données a été chargé
                 return
-            self._write_llm(p)
+            self._write_llm(p, background=True)
 
     def render(self, p: dict, use_llm: bool | None) -> dict:
         """Le prospect au format du front, avec sa rédaction.
