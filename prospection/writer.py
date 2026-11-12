@@ -1,6 +1,7 @@
 """Rédaction de « Pourquoi maintenant », « À retenir » et « Questions à poser ».
 
-Le LLM (Ollama) ne reçoit que des faits numérotés et sourcés, et doit citer le
+Le LLM (Ollama en local, ou une API compatible OpenAI : Groq, Mistral,
+Gemini…) ne reçoit que des faits numérotés et sourcés, et doit citer le
 numéro du fait qu'il reformule : la source affichée vient du fait, jamais du
 LLM. Si le LLM est absent, lent ou répond mal, une rédaction par règles prend
 le relais, pour que la démo ne casse jamais.
@@ -12,6 +13,28 @@ import html
 import json
 import os
 import re
+import urllib.request
+from pathlib import Path
+
+
+def _load_env_file() -> None:
+    """Lit Equipe-01/.env (non versionné) sans écraser les variables déjà définies."""
+    env = Path(__file__).resolve().parent.parent / ".env"
+    if not env.exists():
+        return
+    for line in env.read_text(encoding="utf-8").splitlines():
+        line = line.strip()
+        if line and not line.startswith("#") and "=" in line:
+            key, value = line.split("=", 1)
+            os.environ.setdefault(key.strip(), value.strip().strip('"').strip("'"))
+
+
+_load_env_file()
+
+# « ollama » (local) ou « openai » (toute API compatible : Groq, Mistral, Gemini…)
+PROVIDER = os.getenv("PROSPECT_LLM_PROVIDER", "ollama")
+BASE_URL = os.getenv("PROSPECT_LLM_BASE_URL", "").rstrip("/")
+API_KEY = os.getenv("PROSPECT_LLM_API_KEY", "")
 
 OLLAMA_HOST = os.getenv("OLLAMA_HOST", "http://localhost:11434")
 MODEL = os.getenv("PROSPECT_LLM_MODEL", "qwen2.5:3b")
@@ -81,7 +104,34 @@ def _facts_block(p: dict) -> str:
     return head + "\nFAITS :\n" + "\n".join(lines)
 
 
+def _ask_openai(p: dict) -> dict | None:
+    """Appel d'une API compatible OpenAI (/chat/completions), sans dépendance."""
+    try:
+        body = json.dumps({
+            "model": MODEL,
+            "messages": [
+                {"role": "system", "content": SYSTEM},
+                {"role": "user", "content": _facts_block(p)},
+            ],
+            "temperature": 0.3,
+            "max_tokens": 600,
+            "response_format": {"type": "json_object"},
+        }).encode()
+        req = urllib.request.Request(
+            f"{BASE_URL}/chat/completions",
+            data=body,
+            headers={"Content-Type": "application/json", "Authorization": f"Bearer {API_KEY}"},
+        )
+        with urllib.request.urlopen(req, timeout=TIMEOUT) as res:
+            data = json.load(res)
+        return json.loads(data["choices"][0]["message"]["content"])
+    except Exception:  # clé absente ou fausse, quota atteint, délai dépassé, JSON invalide
+        return None
+
+
 def _ask_llm(p: dict) -> dict | None:
+    if PROVIDER == "openai":
+        return _ask_openai(p)
     try:
         from ollama import Client
 
@@ -193,6 +243,14 @@ def write(p: dict, use_llm: bool | None = None) -> dict:
 
 
 def llm_status() -> dict:
+    if PROVIDER == "openai":
+        return {
+            "provider": "openai",
+            "baseUrl": BASE_URL,
+            "model": MODEL,
+            "apiKey": "renseignée" if API_KEY else "absente",
+            "defaultWriter": DEFAULT_ENGINE,
+        }
     try:
         from ollama import Client
 

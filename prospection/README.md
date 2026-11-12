@@ -45,7 +45,9 @@ Swagger : http://localhost:8000/docs
 | `GET /datasets` | Jeu de données courant, colonnes reconnues et noms acceptés |
 | `POST /datasets` | Remplace le jeu de données : `file` (CSV/XLSX), `mapping` (JSON, optionnel) |
 
-## Réglages (variables d'environnement)
+## Réglages (variables d'environnement ou fichier `.env`)
+
+Modèle à copier : `.env.example` à la racine du dépôt.
 
 | Variable | Défaut | Rôle |
 |----------|--------|------|
@@ -53,6 +55,9 @@ Swagger : http://localhost:8000/docs
 | `PROSPECT_MAPPING` | aucun | Correspondance des colonnes pour ce fichier |
 | `PROSPECT_WRITER` | `llm` | `regles` pour une rédaction instantanée, sans LLM |
 | `PROSPECT_LLM_MODEL` | `qwen2.5:3b` | Modèle Ollama (`ollama pull qwen2.5:3b`) |
+| `PROSPECT_LLM_PROVIDER` | `ollama` | `openai` pour une API compatible OpenAI (Groq, Mistral, Gemini…) |
+| `PROSPECT_LLM_BASE_URL` | vide | URL de l'API, ex. `https://api.groq.com/openai/v1` |
+| `PROSPECT_LLM_API_KEY` | vide | Clé de l'API, dans `.env` uniquement (jamais commitée) |
 | `IA_API_KEY` | vide | Si renseignée, exigée dans l'en-tête `X-API-Key` |
 
 Le LLM ne reçoit que des faits numérotés et sourcés : la source affichée sous
