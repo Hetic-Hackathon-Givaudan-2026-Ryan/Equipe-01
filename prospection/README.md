@@ -8,7 +8,7 @@ et rédige la fiche affichée par le front de `hackathon-app` (types de
 |---------------|------|
 | `data.py`     | Lecture du fichier et reconnaissance des colonnes (`ALIASES`). Une ligne = une interaction ou un fait ; les lignes sont regroupées par prospect. |
 | `scoring.py`  | Score sur 100 : Potentiel /60 (adéquation /35, taille /15, dynamique /10), Opportunité /30, Accessibilité /10. Règles et pondérations en tête de fichier. Produit aussi les faits sourcés de chaque prospect. |
-| `writer.py`   | « Pourquoi maintenant », « À retenir » et « Questions à poser ». Par règles (défaut), ou par LLM via Ollama, avec retour aux règles si la réponse est invalide. |
+| `writer.py`   | « Pourquoi maintenant », « À retenir » et « Questions à poser ». Par LLM via Ollama (défaut, `qwen2.5:3b`), avec retour aux règles si Ollama est absent ou si la réponse est invalide. |
 | `store.py`    | Jeu de données courant et rédactions mises en cache, en mémoire. |
 | `api.py`      | API FastAPI. |
 | `__main__.py` | Test en ligne de commande, sans lancer l'API. |
@@ -18,7 +18,8 @@ et rédige la fiche affichée par le front de `hackathon-app` (types de
 ```bash
 pip install -r requirements.txt
 python -m prospection givaudan_crm_data.csv                  # classement
-python -m prospection givaudan_crm_data.csv --fiche client-5591
+python -m prospection givaudan_crm_data.csv --fiche client-5591          # rédaction par règles
+python -m prospection givaudan_crm_data.csv --fiche client-5591 --llm    # rédaction par le LLM
 python -m prospection exemples/prospects-exemple.csv --mapping exemples/correspondance-exemple.json --fiche nordika-foods
 ```
 
@@ -50,15 +51,16 @@ Swagger : http://localhost:8000/docs
 |----------|--------|------|
 | `PROSPECT_DATASET` | `givaudan_crm_data.csv` | Jeu de données chargé au démarrage |
 | `PROSPECT_MAPPING` | aucun | Correspondance des colonnes pour ce fichier |
-| `PROSPECT_WRITER` | `regles` | `llm` pour rédiger avec Ollama par défaut |
-| `PROSPECT_LLM_MODEL` | `LLM_MODEL` ou `llama3.2:1b` | Modèle Ollama |
+| `PROSPECT_WRITER` | `llm` | `regles` pour une rédaction instantanée, sans LLM |
+| `PROSPECT_LLM_MODEL` | `qwen2.5:3b` | Modèle Ollama (`ollama pull qwen2.5:3b`) |
 | `IA_API_KEY` | vide | Si renseignée, exigée dans l'en-tête `X-API-Key` |
 
 Le LLM ne reçoit que des faits numérotés et sourcés : la source affichée sous
 chaque point vient du fait, jamais du modèle. Une réponse qui recopie la
 consigne, parle en « nous » ou ne cite aucun fait est rejetée. Avec
-`llama3.2:1b`, c'est le cas la plupart du temps : prévoir un modèle d'au moins
-3B paramètres (`qwen2.5:3b`, `llama3.2:3b`) avant de passer `PROSPECT_WRITER=llm`.
+`llama3.2:1b`, c'est le cas la plupart du temps : garder un modèle d'au moins
+3B paramètres. Compter 15 à 45 s par fiche sur un PC sans GPU ; la fiche est
+ensuite gardée en mémoire, et la liste `/prospects` utilise les règles.
 
 ## Limites du CRM actuel
 

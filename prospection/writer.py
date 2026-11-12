@@ -14,11 +14,11 @@ import os
 import re
 
 OLLAMA_HOST = os.getenv("OLLAMA_HOST", "http://localhost:11434")
-MODEL = os.getenv("PROSPECT_LLM_MODEL", os.getenv("LLM_MODEL", "llama3.2:1b"))
+MODEL = os.getenv("PROSPECT_LLM_MODEL", "qwen2.5:3b")
 TIMEOUT = float(os.getenv("PROSPECT_LLM_TIMEOUT", "60"))
-# « regles » par défaut : factuel et instantané. « llm » quand un modèle d'au
-# moins 3B paramètres est installé (llama3.2:1b invente et parle en « nous »).
-DEFAULT_ENGINE = os.getenv("PROSPECT_WRITER", "regles")
+# « llm » par défaut, avec retour aux règles si Ollama ou le modèle manquent.
+# Prévoir au moins 3B paramètres : llama3.2:1b invente et parle en « nous ».
+DEFAULT_ENGINE = os.getenv("PROSPECT_WRITER", "llm")
 
 # Signes d'une réponse à jeter : consigne recopiée ou texte écrit au nom de Givaudan
 _BAD = re.compile(r"phrase courte|majuscule|\b(nous|notre|nos|je)\b", re.I)
