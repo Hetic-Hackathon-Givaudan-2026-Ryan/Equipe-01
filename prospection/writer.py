@@ -15,7 +15,8 @@ import re
 
 OLLAMA_HOST = os.getenv("OLLAMA_HOST", "http://localhost:11434")
 MODEL = os.getenv("PROSPECT_LLM_MODEL", "qwen2.5:3b")
-TIMEOUT = float(os.getenv("PROSPECT_LLM_TIMEOUT", "60"))
+TIMEOUT = float(os.getenv("PROSPECT_LLM_TIMEOUT", "90"))
+KEEP_ALIVE = os.getenv("PROSPECT_LLM_KEEP_ALIVE", "30m")
 # « llm » par défaut, avec retour aux règles si Ollama ou le modèle manquent.
 # Prévoir au moins 3B paramètres : llama3.2:1b invente et parle en « nous ».
 DEFAULT_ENGINE = os.getenv("PROSPECT_WRITER", "llm")
@@ -30,7 +31,7 @@ Réponds uniquement en JSON, en français, avec exactement ces clés :
 {"why": "une phrase courte, sans majuscule au début, qui dit pourquoi contacter ce prospect maintenant",
  "takeaways": [{"text": "une phrase claire, avec **gras** sur l'élément clé", "fact": numéro du fait}],
  "questions": [{"text": "une question ouverte à poser au client", "facts": [numéros des faits liés]}]}
-Donne 3 takeaways et 4 questions. Les questions font émerger des besoins implicites (goût, formulation, réglementation, calendrier, décision)."""
+Donne 3 takeaways et 4 questions. Chaque phrase fait moins de 20 mots. Les questions font émerger des besoins implicites (goût, formulation, réglementation, calendrier, décision)."""
 
 
 # Structure imposée au LLM (sortie structurée d'Ollama) : évite les JSON cassés
@@ -92,7 +93,8 @@ def _ask_llm(p: dict) -> dict | None:
                 {"role": "user", "content": _facts_block(p)},
             ],
             format=SCHEMA,
-            options={"temperature": 0.3, "num_predict": 700, "repeat_penalty": 1.15},
+            options={"temperature": 0.3, "num_predict": 500, "repeat_penalty": 1.15},
+            keep_alive=KEEP_ALIVE,  # modèle gardé en mémoire entre deux fiches
         )
         return json.loads(res["message"]["content"])
     except Exception:  # LLM absent, modèle manquant, délai dépassé, JSON invalide

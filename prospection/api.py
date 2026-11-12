@@ -46,8 +46,9 @@ def health() -> dict:
 @app.get("/prospects", tags=["prospects"], dependencies=[Depends(check_key)])
 def prospects() -> list[dict]:
     """Tous les prospects, triés par score. La rédaction du LLM n'apparaît que
-    pour les fiches déjà ouvertes ; les autres ont la version par règles."""
-    return [store.render(p, use_llm=False) for p in store.prospects]
+    pour les fiches déjà rédigées (ouvertes, ou pré-rédigées au chargement) ;
+    les autres ont la version par règles."""
+    return [store.render_list_item(p) for p in store.prospects]
 
 
 @app.get("/prospects/{pid}", tags=["prospects"], dependencies=[Depends(check_key)])
