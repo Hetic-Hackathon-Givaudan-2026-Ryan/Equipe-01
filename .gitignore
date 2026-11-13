@@ -20,3 +20,13 @@ __pycache__/
 .idea/
 .DS_Store
 Thumbs.db
+
+# Environnements virtuels locaux (.venv-1, etc.)
+.venv-*/
+
+# Donnees brutes collectees : contenu d articles et donnees d identite, non publiees
+data/raw/said/documents/
+data/raw/said/documents_archive_v1/
+data/raw/said/identite/
+research/*_backup.py
+data/processed/*.db

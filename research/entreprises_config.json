@@ -1,0 +1,21 @@
+{
+    "aroma-zone": {
+        "alias": ["aroma-zone", "aroma zone"],
+        "requete_actualites": "\"Aroma-Zone\" OR \"Aroma Zone\"",
+        "pages_officielles": [
+            {"url": "https://careers.aroma-zone.com/jobs", "type": "recrutement"},
+            {"url": "https://www.aroma-zone.com/", "type": "site_officiel"},
+            {"url": "https://www.aroma-zone.com/content/mentions-legales", "type": "mentions_legales"}
+        ]
+    },
+    "groupe-rocher": {
+        "alias": ["groupe rocher", "yves rocher"],
+        "requete_actualites": "\"Groupe Rocher\"",
+        "pages_officielles": []
+    },
+    "nestle-france": {
+        "alias": ["nestle france", "nestle"],
+        "requete_actualites": "\"Nestlé France\"",
+        "pages_officielles": []
+    }
+}

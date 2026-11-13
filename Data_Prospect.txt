@@ -162,16 +162,17 @@ Existe-t-il des indices publics d'un besoin potentiel ?
 
 Des interlocuteurs professionnels pertinents sont-ils identifiables ?
 
-## 7. Proposition de notation
+## 7. Grille de notation officielle
 
-ProspectAI peut utiliser un score indicatif sur 100 points.
+ProspectAI utilise la grille de qualification définie par le pôle Product, sur 100 points.
 
-- Adéquation sectorielle : 20 points.
-- Adéquation produit : 20 points.
-- Potentiel économique : 15 points.
+- Adéquation avec les activités de Givaudan : 40 points.
+- Taille et potentiel économique : 15 points.
 - Innovation et développement : 15 points.
-- Signaux d'opportunité : 20 points.
-- Accessibilité commerciale : 10 points.
+- Signaux détectés : 20 points.
+- Date récente du signal : 10 points.
+
+L'accessibilité commerciale (interlocuteurs identifiables) n'est pas notée. Elle est présentée à part, comme information complémentaire.
 
 Interprétation indicative :
 
@@ -180,7 +181,7 @@ Interprétation indicative :
 - 40 à 59 : prospect à approfondir.
 - 0 à 39 : faible adéquation identifiée.
 
-Le score doit être accompagné d'une justification et d'un niveau de confiance. Une information inconnue ne doit pas être considérée comme une preuve d'absence d'opportunité.
+Chaque note doit être justifiée par des informations sourcées. Il faut distinguer une information confirmée, estimée, non disponible, contradictoire ou obsolète. Une information inconnue ne doit pas être considérée comme une preuve d'absence d'opportunité.
 
 ## 8. Fiabilité et traçabilité des informations
 
