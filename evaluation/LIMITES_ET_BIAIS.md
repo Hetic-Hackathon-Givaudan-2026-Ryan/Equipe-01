@@ -15,7 +15,7 @@ indique son effet sur les résultats et ce qu'il faudrait pour le lever.
 | 50 clients et 520 interactions générés artificiellement, sans nom d'entreprise ni de contact | Aucun résultat ne peut être généralisé à de vrais clients Givaudan |
 | Les étapes du pipeline sont réparties de façon quasi uniforme (entre 74 et 101 occurrences chacune) et chaque client a à la fois des affaires gagnées et perdues | Le lien entre l'historique et l'issue d'une affaire est faible : un modèle ne peut pas être très bon sur ces données |
 | Horodatages inexploitables (toutes les dates écrasées en « 08:59.8 » par Excel) | La chronologie a été reconstituée à partir de l'ordre des lignes. C'est une **hypothèse**, non vérifiable |
-| Plus de 2 500 colonnes vides ajoutées par Excel | Corrigé : seules les 13 vraies colonnes sont lues |
+| 16 371 colonnes vides ajoutées par Excel (16 384 au total) et 9 lignes en double | Corrigé à la lecture : seules les 13 vraies colonnes sont lues |
 | Comptes rendus d'échange génériques | Inutilisables pour détecter des besoins précis |
 | Aucun signal commercial (recrutement, lancement, investissement…) | 45 % de la grille Product (innovation, signaux, récence) ne peut pas être évaluée sur ce fichier |
 
